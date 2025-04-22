@@ -1,0 +1,213 @@
+<!-- templates/books/index.html -->
+{% extends "base.html" %}
+
+{% block title %}Ingeniería e Investigación - Libros Especializados{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="hero-content text-center">
+            <h1 class="display-4 fw-bold">Ingeniería e Investigación</h1>
+            <p class="lead">Descubre nuestra selección de libros especializados en ingeniería, ciencia y tecnología.</p>
+            <div class="d-flex justify-content-center">
+                <form class="hero-search-form">
+                    <div class="input-group">
+                        <input type="text" class="form-control form-control-lg" placeholder="¿Qué libro estás buscando?">
+                        <button class="btn btn-wood btn-lg" type="submit" style="background: linear-gradient(135deg, var(--wood-medium), var(--wood-dark));"><i class="fas fa-search"></i></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Books Section -->
+<section class="featured-books py-5">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title">Libros Destacados</h2>
+            <div class="section-divider"></div>
+            <p class="section-description">Nuestra selección de los mejores libros para ingenieros e investigadores</p>
+        </div>
+        <div class="row">
+            {% for book in featured_books %}
+            <div class="col-md-4 mb-4">
+                <div class="book-card">
+                    <div class="book-card-img">
+                        {% if book.cover %}
+                        <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="img-fluid">
+                        {% else %}
+                        <img src="/static/images/no-cover.png" alt="Sin portada" class="img-fluid">
+                        {% endif %}
+                        <div class="book-card-overlay">
+                            <a href="#" class="btn btn-wood book-detail-btn" data-slug="{{ book.slug }}">Ver detalles</a>
+                        </div>
+                    </div>
+                    <div class="book-card-content">
+                        <h5 class="book-title">{{ book.title }}</h5>
+                        <p class="book-author">{{ book.author.name }}</p>
+                        <div class="book-price">${{ book.price }}</div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p>No hay libros destacados disponibles en este momento.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="categories-section py-5 bg-light">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title">Categorías</h2>
+            <div class="section-divider"></div>
+            <p class="section-description">Explora nuestros libros por categoría</p>
+        </div>
+        <div class="row">
+            {% for category in categories %}
+            <div class="col-md-3 col-sm-6 mb-4">
+                <a href="{% url 'books:category_books' category.slug %}" class="category-card">
+                    <div class="category-card-content">
+                        <h4 class="category-title">{{ category.name }}</h4>
+                        <span class="category-count">{{ category.books.count }} libros</span>
+                    </div>
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p>No hay categorías disponibles en este momento.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Latest Books Section -->
+<section class="latest-books py-5">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h2 class="section-title">Últimos Libros</h2>
+            <div class="section-divider"></div>
+            <p class="section-description">Los títulos más recientes en nuestra biblioteca</p>
+        </div>
+        <div class="row">
+            {% for book in latest_books %}
+            <div class="col-md-3 col-sm-6 mb-4">
+                <div class="book-card">
+                    <div class="book-card-img">
+                        {% if book.cover %}
+                        <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="img-fluid">
+                        {% else %}
+                        <img src="/static/images/no-cover.png" alt="Sin portada" class="img-fluid">
+                        {% endif %}
+                        <div class="book-card-overlay">
+                            <a href="#" class="btn btn-primary book-detail-btn" data-slug="{{ book.slug }}">Ver detalles</a>
+                        </div>
+                    </div>
+                    <div class="book-card-content">
+                        <h5 class="book-title">{{ book.title }}</h5>
+                        <p class="book-author">{{ book.author.name }}</p>
+                        <div class="book-price">${{ book.price }}</div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p>No hay libros disponibles en este momento.</p>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="#" class="btn" style="border: 2px solid var(--wood-medium); color: var(--wood-dark); font-weight: 600;">Ver todos los libros</a>
+        </div>
+    </div>
+</section>
+
+<!-- Wood decorative divider -->
+<div class="wood-border"></div>
+
+<!-- Newsletter Section -->
+<section class="newsletter-section py-5 text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <h3>Suscríbete a nuestro boletín</h3>
+                <p class="mb-0">Recibe notificaciones sobre nuevos libros y ofertas especiales.</p>
+            </div>
+            <div class="col-lg-6">
+                <form class="newsletter-form">
+                    <div class="input-group">
+                        <input type="email" class="form-control" placeholder="Tu correo electrónico">
+                        <button class="btn" style="background-color: var(--dark-color); color: white; border: 1px solid var(--wood-light);" type="submit">Suscribirse</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Book detail buttons
+        const bookDetailButtons = document.querySelectorAll('.book-detail-btn');
+        
+        bookDetailButtons.forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                const bookSlug = this.getAttribute('data-slug');
+                loadBookDetails(bookSlug);
+            });
+        });
+        
+        // Function to load book details
+        function loadBookDetails(slug) {
+            fetch(`/libro/${slug}/json/`)
+                .then(response => response.json())
+                .then(data => {
+                    // Update modal content with book data
+                    document.getElementById('modalBookTitle').textContent = data.title;
+                    document.getElementById('modalBookAuthor').textContent = data.author;
+                    document.getElementById('modalBookDescription').textContent = data.description;
+                    document.getElementById('modalBookPrice').textContent = `$${data.price.toFixed(2)}`;
+                    document.getElementById('modalBookISBN').textContent = data.isbn || 'N/A';
+                    document.getElementById('modalBookPages').textContent = data.pages || 'N/A';
+                    document.getElementById('modalBookDate').textContent = data.publication_date || 'N/A';
+                    
+                    // Update categories
+                    const categoriesElement = document.getElementById('modalBookCategories');
+                    categoriesElement.innerHTML = '';
+                    data.categories.forEach(category => {
+                        const badge = document.createElement('span');
+                        badge.className = 'badge bg-secondary me-1';
+                        badge.textContent = category;
+                        categoriesElement.appendChild(badge);
+                    });
+                    
+                    // Update book cover
+                    const coverElement = document.getElementById('modalBookCover');
+                    if (data.cover_url) {
+                        coverElement.src = data.cover_url;
+                        coverElement.alt = data.title;
+                    } else {
+                        coverElement.src = '/static/images/no-cover.png';
+                        coverElement.alt = 'Sin portada';
+                    }
+                    
+                    // Show modal
+                    const bookModal = new bootstrap.Modal(document.getElementById('bookDetailModal'));
+                    bookModal.show();
+                })
+                .catch(error => {
+                    console.error('Error loading book details:', error);
+                });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,222 @@
+<!-- templates/books/category_books.html -->
+{% extends "base.html" %}
+
+{% block title %}{{ category.name }} - Ingeniería e Investigación{% endblock %}
+
+{% block content %}
+<!-- Category Header -->
+<section class="category-header py-4">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'books:index' %}">Inicio</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ category.name }}</li>
+            </ol>
+        </nav>
+        <h1 class="category-title">{{ category.name }}</h1>
+        <p class="category-description">Explora nuestra selección de libros en la categoría de {{ category.name }}</p>
+    </div>
+</section>
+
+<!-- Books List -->
+<section class="category-books py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 mb-4">
+                <!-- Sidebar Filters -->
+                <div class="sidebar-filter">
+                    <h4>Filtros</h4>
+                    <hr>
+                    <div class="filter-group">
+                        <h5>Todas las categorías</h5>
+                        <ul class="list-unstyled">
+                            {% for cat in categories %}
+                            <li>
+                                <a href="{% url 'books:category_books' cat.slug %}" class="{% if cat.id == category.id %}active{% endif %}">
+                                    {{ cat.name }}
+                                    <span class="badge bg-secondary float-end">{{ cat.books.count }}</span>
+                                </a>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <hr>
+                    <div class="filter-group">
+                        <h5>Precio</h5>
+                        <div class="price-range">
+                            <input type="range" class="form-range" min="0" max="500" step="10" id="priceRange">
+                            <div class="d-flex justify-content-between">
+                                <span>$0</span>
+                                <span id="priceValue">$100</span>
+                                <span>$500</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-9">
+                <!-- Sorting Options -->
+                <div class="sorting-options mb-4">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <p class="results-count">{{ books|length }} libro(s) encontrado(s)</p>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex justify-content-md-end">
+                                <select class="form-select" aria-label="Ordenar por">
+                                    <option selected>Ordenar por</option>
+                                    <option value="price_asc">Precio: menor a mayor</option>
+                                    <option value="price_desc">Precio: mayor a menor</option>
+                                    <option value="title_asc">Título: A-Z</option>
+                                    <option value="title_desc">Título: Z-A</option>
+                                    <option value="date_desc">Más recientes</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Books Grid -->
+                <div class="row">
+                    {% for book in books %}
+                    <div class="col-md-4 mb-4">
+                        <div class="book-card">
+                            <div class="book-card-img">
+                                {% if book.cover %}
+                                <img src="{{ book.cover.url }}" alt="{{ book.title }}" class="img-fluid">
+                                {% else %}
+                                <img src="/static/images/no-cover.png" alt="Sin portada" class="img-fluid">
+                                {% endif %}
+                                <div class="book-card-overlay">
+                                    <a href="#" class="btn btn-primary book-detail-btn" data-slug="{{ book.slug }}">Ver detalles</a>
+                                </div>
+                            </div>
+                            <div class="book-card-content">
+                                <h5 class="book-title">{{ book.title }}</h5>
+                                <p class="book-author">{{ book.author.name }}</p>
+                                <div class="book-price">${{ book.price }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12 text-center">
+                        <p>No hay libros disponibles en esta categoría.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Pagination -->
+                {% if books.has_other_pages %}
+                <nav aria-label="Page navigation" class="mt-5">
+                    <ul class="pagination justify-content-center">
+                        {% if books.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ books.previous_page_number }}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+
+                        {% for i in books.paginator.page_range %}
+                        <li class="page-item {% if books.number == i %}active{% endif %}">
+                            <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                        </li>
+                        {% endfor %}
+
+                        {% if books.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ books.next_page_number }}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Book detail buttons
+        const bookDetailButtons = document.querySelectorAll('.book-detail-btn');
+        
+        bookDetailButtons.forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                const bookSlug = this.getAttribute('data-slug');
+                loadBookDetails(bookSlug);
+            });
+        });
+        
+        // Function to load book details
+        function loadBookDetails(slug) {
+            fetch(`/libro/${slug}/json/`)
+                .then(response => response.json())
+                .then(data => {
+                    // Update modal content with book data
+                    document.getElementById('modalBookTitle').textContent = data.title;
+                    document.getElementById('modalBookAuthor').textContent = data.author;
+                    document.getElementById('modalBookDescription').textContent = data.description;
+                    document.getElementById('modalBookPrice').textContent = `$${data.price.toFixed(2)}`;
+                    document.getElementById('modalBookISBN').textContent = data.isbn || 'N/A';
+                    document.getElementById('modalBookPages').textContent = data.pages || 'N/A';
+                    document.getElementById('modalBookDate').textContent = data.publication_date || 'N/A';
+                    
+                    // Update categories
+                    const categoriesElement = document.getElementById('modalBookCategories');
+                    categoriesElement.innerHTML = '';
+                    data.categories.forEach(category => {
+                        const badge = document.createElement('span');
+                        badge.className = 'badge bg-secondary me-1';
+                        badge.textContent = category;
+                        categoriesElement.appendChild(badge);
+                    });
+                    
+                    // Update book cover
+                    const coverElement = document.getElementById('modalBookCover');
+                    if (data.cover_url) {
+                        coverElement.src = data.cover_url;
+                        coverElement.alt = data.title;
+                    } else {
+                        coverElement.src = '/static/images/no-cover.png';
+                        coverElement.alt = 'Sin portada';
+                    }
+                    
+                    // Show modal
+                    const bookModal = new bootstrap.Modal(document.getElementById('bookDetailModal'));
+                    bookModal.show();
+                })
+                .catch(error => {
+                    console.error('Error loading book details:', error);
+                });
+        }
+        
+        // Price range functionality
+        const priceRange = document.getElementById('priceRange');
+        const priceValue = document.getElementById('priceValue');
+        
+        if (priceRange && priceValue) {
+            priceRange.addEventListener('input', function() {
+                priceValue.textContent = `$${this.value}`;
+            });
+        }
+    });
+</script>
+{% endblock %}
